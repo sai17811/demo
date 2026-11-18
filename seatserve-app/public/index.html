@@ -33,7 +33,7 @@ input{font:inherit;width:100%;padding:14px;border-radius:14px;border:1px solid v
 .bar{position:fixed;left:0;right:0;bottom:0;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));background:linear-gradient(transparent,var(--bg) 40%)}.bar>div{max-width:520px;margin:0 auto}
 .bub{display:inline-grid;place-items:center;min-width:24px;height:24px;border-radius:12px;background:#1a1306;color:var(--ac2);margin-right:8px;font-size:13px}
 .steps{display:flex;gap:5px;margin:14px 0}.steps i{flex:1;height:6px;border-radius:3px;background:var(--sf2)}.steps i.on{background:linear-gradient(90deg,var(--ac),var(--ac2))}
-.pulse{animation:p 1.6s infinite}@keyframes p{50%{opacity:.5}}
+.ck{width:96px;height:96px}.ck circle{fill:none;stroke:var(--ok);stroke-width:3;stroke-dasharray:150;stroke-dashoffset:150;animation:dr .7s ease forwards}.ck path{fill:none;stroke:var(--ok);stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:40;stroke-dashoffset:40;animation:dr .4s .6s ease forwards}@keyframes dr{to{stroke-dashoffset:0}}.up{opacity:0;animation:up .6s .9s ease forwards}@keyframes up{from{transform:translateY(12px)}to{opacity:1;transform:none}}.pulse{animation:p 1.6s infinite}@keyframes p{50%{opacity:.5}}
 .hero{text-align:center;padding:26px 0 6px}.hero h1{margin:10px 0}
 .qr{display:inline-block;text-align:center;margin:8px;padding:12px;background:#fff;color:#111;border-radius:16px;font-size:12px;font-weight:600;box-shadow:var(--sh)}.qr canvas,.qr img{display:block;margin:0 auto 6px}
 .board{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
@@ -65,9 +65,24 @@ const LS={g:(k,d)=>{try{return JSON.parse(localStorage.getItem(k))||d}catch(e){r
 let orders=[],sold=[],cart={},seat=LS.g("ss_seat",null),view="menu",pay=null,tab="board",myId=LS.g("ss_my",null),loaded=false,known=new Set(),dbm=null,ownerOK=false,cat="All",msg="",base=LS.g("ss_base",DEFAULT_BASE);
 const isOwner=()=>location.hash==="#owner";
 let token=LS.g("ss_tok",null),live=false,es=null;
-async function api(p,o={}){const r=await fetch("/api"+p,{method:o.method||"GET",headers:{"Content-Type":"application/json",...(token?{Authorization:"Bearer "+token}:{})},body:o.body?JSON.stringify(o.body):undefined});const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||"Request failed");return j}
+let local=false;
+async function api(p,o={}){if(!local){let r=null,j=null;try{r=await fetch("/api"+p,{method:o.method||"GET",headers:{"Content-Type":"application/json",...(token?{Authorization:"Bearer "+token}:{})},body:o.body?JSON.stringify(o.body):undefined});j=await r.json()}catch(e){r=null}
+ if(r&&j&&typeof j==="object"&&(r.ok||j.error)){if(!r.ok)throw new Error(j.error);return j}
+ local=true;live=true}
+ return lapi(p,o)}
+function lapi(p,o){const b=o.body||{},m=o.method||"GET",rd=()=>LS.g("ss_orders",[]),wr=a=>LS.s("ss_orders",a);
+ if(p==="/sold"){let s=LS.g("ss_sold",[]);if(m==="POST"){s=s.includes(b.id)?s.filter(x=>x!==b.id):[...s,b.id];LS.s("ss_sold",s);sold=s;render()}return{ids:s}}
+ if(p==="/login"){if(String(b.pin)==="1234")return{token:"local"};throw new Error("Wrong PIN")}
+ if(p==="/orders")return rd();
+ if(p==="/pay"){const u=String(b.upi||"").toLowerCase();if(u.startsWith("fail"))throw new Error("Payment failed. Try again or use another UPI ID.");
+  const items=[];let s=0;(b.items||[]).forEach(i=>{const x=MENU.find(y=>y.id===i.id);if(x&&i.q>0){items.push({n:x.name,q:i.q,p:x.price});s+=x.price*i.q}});if(!items.length)throw new Error("Cart is empty.");
+  const sd=b.seat,od={id:"SS"+Math.random().toString(36).slice(2,7).toUpperCase(),seat:`Screen ${sd.scr} · Row ${sd.row} · Seat ${sd.no}`,screen:String(sd.scr),row:sd.row,name:b.name,note:b.note,items,total:Math.round(s*1.05),status:"RECEIVED",paid:"UPI "+u,t:Date.now()};wr([...rd(),od]);return od}
+ const mm=p.match(/^\/orders\/(\w+)$/);if(mm){const a=rd(),o=a.find(x=>x.id===mm[1]);if(!o)throw new Error("Not found");if(m==="PATCH"){const i=FLOW.indexOf(o.status);if(b.action==="issue")o.issue=true;else if(b.action==="advance"&&i<FLOW.length-1){o.status=FLOW[i+1];o.issue=false}else if(b.action==="cancel")o.status="CANCELLED";wr(a);upsert(o)}return o}
+ throw new Error("Unknown request")}
+let polling=false,lastJ="";
+function startPoll(){if(polling)return;polling=true;const tick=()=>{let a=LS.g("ss_orders",[]);if(!ownerOK)a=a.filter(o=>o.id===myId);const j=JSON.stringify(a);if(j!==lastJ){const had=new Set(orders.map(o=>o.id));if(ownerOK&&lastJ&&a.some(o=>!had.has(o.id)&&o.status==="RECEIVED"))beep();lastJ=j;orders=a;render()}sold=LS.g("ss_sold",[])};setInterval(tick,1500);addEventListener("storage",tick)}
 function upsert(o){const i=orders.findIndex(x=>x.id===o.id),nw=i<0;if(nw)orders.push(o);else orders[i]=o;if(nw&&o.status==="RECEIVED"&&ownerOK)beep();render()}
-function connect(){if(es)es.close();const q=ownerOK?"token="+encodeURIComponent(token):myId?"order="+myId:"";es=new EventSource("/api/events?"+q);es.onopen=()=>{live=true;render()};es.onerror=()=>{live=false};es.onmessage=e=>{const m=JSON.parse(e.data);if(m.type==="order")upsert(m.order);if(m.type==="sold"){sold=m.ids;render()}}}
+function connect(){if(local){startPoll();return}if(es)es.close();const q=ownerOK?"token="+encodeURIComponent(token):myId?"order="+myId:"";es=new EventSource("/api/events?"+q);es.onopen=()=>{live=true;render()};es.onerror=()=>{live=false};es.onmessage=e=>{const m=JSON.parse(e.data);if(m.type==="order")upsert(m.order);if(m.type==="sold"){sold=m.ids;render()}}}
 async function login(){try{const r=await api("/login",{method:"POST",body:{pin:$("#pin").value}});token=r.token;LS.s("ss_tok",token);ownerOK=true;orders=await api("/orders");connect()}catch(e){alert("Wrong PIN")}render()}
 async function initStore(){try{sold=(await api("/sold")).ids}catch(e){}
  if(token){try{orders=await api("/orders");ownerOK=true}catch(e){token=null;LS.s("ss_tok",null)}}
@@ -109,7 +124,9 @@ async function doPay(){const u=($("#upi").value||"").trim().toLowerCase();if(!/^
  if(u.startsWith("fail")){msg="Payment failed. Try again or use another UPI ID.";return render()}
  $("#app").innerHTML=`<div class="hero"><div class="brand">SeatServe</div><h1 class="pulse">Waiting for UPI approval…</h1><p class="mu">${u.startsWith("pending")?"Approve the request in your UPI app (about 10 seconds).":"Processing your payment…"}</p></div>`;
  await new Promise(r=>setTimeout(r,u.startsWith("pending")?10000:1200));
- try{const o=await api("/pay",{method:"POST",body:{seat,items:lines().map(l=>({id:l.id,q:l.q})),name:pay.name,note:pay.note,upi:u}});myId=o.id;LS.s("ss_my",myId);cart={};orders=[o];connect();view="track"}catch(e){msg=e.message;view="pay"}render()}
+ try{const o=await api("/pay",{method:"POST",body:{seat,items:lines().map(l=>({id:l.id,q:l.q})),name:pay.name,note:pay.note,upi:u}});myId=o.id;LS.s("ss_my",myId);cart={};orders=[o];connect();view="done"}catch(e){msg=e.message;view="pay"}render()}
+function vDone(){const o=orders.find(x=>x.id===myId)||{id:"",seat:seatLabel()};return `<div class="hero"><svg class="ck" viewBox="0 0 52 52"><circle class="c1" cx="26" cy="26" r="23"/><path class="c2" d="M15 27l8 8 15-17"/></svg><div class="brand" style="margin-top:14px">Payment successful</div><h1 class="up">Your order is placed!</h1><p class="mu up">Delivery to your seat is coming shortly.</p></div>
+<div class="card up"><div class="row"><span class="mu">Order</span><b>${o.id}</b></div><div class="row"><span class="mu">Delivering to</span><b>${o.seat}</b></div></div><button class="full up" onclick="view='track';render()">Track my order</button>`}
 function vTrack(){const o=orders.find(x=>x.id===myId);if(!o)return `<h1>Order</h1><p class="mu">No active order.</p><button onclick="view='menu';render()">Back to menu</button>`;
 const i=FLOW.indexOf(o.status);return `<div class="brand">Order ${o.id}</div><h1 class="${o.status==="DELIVERED"?"":"pulse"}">${LBL[o.status]}</h1><div class="mu" style="margin-top:6px">Delivering to ${o.seat}</div>
 <div class="steps">${FLOW.map((s,k)=>`<i class="${k<=i?"on":""}"></i>`).join("")}</div>
@@ -121,7 +138,7 @@ const adv=id=>api("/orders/"+id,{method:"PATCH",body:{action:"advance"}}).catch(
 const cancel=id=>api("/orders/"+id,{method:"PATCH",body:{action:"cancel"}}).catch(e=>alert(e.message));
 function vOwner(){if(!ownerOK)return `<div class="brand">SeatServe</div><h1>Owner login</h1><div class="card"><input id="pin" type="password" placeholder="Owner PIN"><button class="full" style="margin-top:8px" onclick="login()">Open dashboard</button></div>`;
 const paid=orders.filter(o=>o.status!=="CANCELLED"),rev=paid.reduce((a,o)=>a+o.total,0);
-let h=`<div class="row"><div><div class="brand">SeatServe</div><h1>Stall dashboard</h1></div><span class="tag">${live?"Live":"Reconnecting…"}</span></div>
+let h=`<div class="row"><div><div class="brand">SeatServe</div><h1>Stall dashboard</h1></div><span class="tag">${local?"Demo mode · this device":live?"Live":"Reconnecting…"}</span></div>
 <div class="tabs">${["board","menu","qr"].map(t=>`<button class="s ${t===tab?"":"g"}" onclick="tab='${t}';render()">${{board:"Live orders",menu:"Menu",qr:"Seat QR stickers"}[t]}</button>`).join("")}</div>`;
 if(tab==="board"){h+=`<div class="kp"><div class="card"><b>${paid.length}</b><div class="mu">Orders</div></div><div class="card"><b>${inr(rev)}</b><div class="mu">Revenue</div></div><div class="card"><b>${paid.length?inr(rev/paid.length):"₹0"}</b><div class="mu">Avg order</div></div></div><h2></h2><div class="board">`;
  [["RECEIVED","New"],["PREPARING","Preparing"],["READY","Ready (by row)"],["OUT_FOR_DELIVERY","Out for delivery"]].forEach(([s,t])=>{let l=orders.filter(o=>o.status===s);if(s==="READY")l=l.sort((a,b)=>(a.screen+a.row).localeCompare(b.screen+b.row));
@@ -135,7 +152,7 @@ function mkQR(){const b=($("#base").value||base).split("#")[0];base=b;LS.s("ss_b
 function qrTo(el,t,w){try{new QRCode(el,{text:t,width:w,height:w,correctLevel:QRCode.CorrectLevel.H})}catch(e){el.textContent="QR unavailable"}}
 function drawQR(){document.querySelectorAll("[data-qr]:empty").forEach(e=>qrTo(e,`${base}#seat-${e.dataset.qr}`,120))}
 function render(){const a=document.activeElement;if(a&&a.tagName==="INPUT"&&view!=="menu")return;
- const v={landing:vLanding,menu:vMenu,cart:vCart,pay:()=>pay?vPay():vMenu(),track:vTrack,owner:vOwner}[view]||vMenu,sc=scrollY;
+ const v={landing:vLanding,menu:vMenu,cart:vCart,pay:()=>pay?vPay():vMenu(),track:vTrack,done:vDone,owner:vOwner}[view]||vMenu,sc=scrollY;
  const app=$("#app");app.className=view==="owner"?"w ow":"w";app.innerHTML=v();scrollTo(0,sc);drawQR()}
 setInterval(()=>{if(view==="owner"&&tab==="board"&&ownerOK)render()},30000);
 route();initStore();
