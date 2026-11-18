@@ -1,0 +1,4 @@
+[build]
+  base = "seatserve-app"
+  publish = "public"
+  functions = "netlify/functions"
