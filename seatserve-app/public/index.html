@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>SeatServe</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+:root{--bg:#f4efe6;--sf:#fffdf8;--sf2:#efe8da;--tx:#1d1a14;--mu:#7a7468;--ac:#b8860b;--ac2:#e8c25a;--ok:#1f9d55;--er:#d64545;--bd:rgba(0,0,0,.09);--sh:0 10px 30px rgba(60,40,0,.12);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b0b0e;--sf:#16161c;--sf2:#1f1f27;--tx:#f5f1e8;--mu:#9a968c;--ac:#d4a017;--ac2:#f6d77a;--bd:rgba(255,255,255,.08);--sh:0 12px 34px rgba(0,0,0,.55)}}
+:root[data-theme="dark"]{--bg:#0b0b0e;--sf:#16161c;--sf2:#1f1f27;--tx:#f5f1e8;--mu:#9a968c;--ac:#d4a017;--ac2:#f6d77a;--bd:rgba(255,255,255,.08);--sh:0 12px 34px rgba(0,0,0,.55)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.45 Inter,system-ui,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+.w{max-width:520px;margin:0 auto;padding:18px 16px 120px}.w.ow{max-width:1040px}
+h1,h2,.serif{font-family:"Playfair Display",Georgia,serif;font-weight:700;letter-spacing:.2px;margin:0}
+h1{font-size:28px;line-height:1.15}h2{font-size:20px;margin:18px 0 8px}
+.brand{font-family:"Playfair Display",Georgia,serif;font-size:13px;letter-spacing:3px;text-transform:uppercase;color:var(--ac2)}
+.mu{color:var(--mu);font-size:13px}.row{display:flex;gap:12px;align-items:center;justify-content:space-between}
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:20px;padding:14px;margin:12px 0;box-shadow:var(--sh)}
+button{font:inherit;border:0;border-radius:14px;padding:14px 18px;min-height:50px;background:linear-gradient(135deg,var(--ac2),var(--ac));color:#1a1306;font-weight:700;cursor:pointer;transition:transform .12s,opacity .2s}
+button:active{transform:scale(.97)}button:disabled{opacity:.4}
+button.g{background:var(--sf2);color:var(--tx);border:1px solid var(--bd)}button.d{background:var(--er);color:#fff}
+button.s{min-height:38px;padding:7px 14px;font-size:14px;border-radius:12px}.full{width:100%}
+input{font:inherit;width:100%;padding:14px;border-radius:14px;border:1px solid var(--bd);background:var(--sf2);color:var(--tx);margin:5px 0}
+.tk{position:relative;background:linear-gradient(135deg,var(--ac2),var(--ac));color:#1a1306;border-radius:18px;padding:14px 18px;margin:14px 0;display:flex;justify-content:space-between;align-items:center;box-shadow:var(--sh)}
+.tk:before,.tk:after{content:"";position:absolute;top:50%;width:18px;height:18px;margin-top:-9px;border-radius:50%;background:var(--bg)}.tk:before{left:-9px}.tk:after{right:-9px}
+.tk small{display:block;font-size:10px;letter-spacing:2px;opacity:.7;font-weight:600}.tk b{font-size:20px;font-family:"Playfair Display",serif}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:4px 0 8px;position:sticky;top:0;background:var(--bg);z-index:5;scrollbar-width:none}
+.chip{white-space:nowrap}
+.it{display:flex;gap:14px;align-items:center;background:var(--sf);border:1px solid var(--bd);border-radius:22px;padding:10px;margin:12px 0;box-shadow:var(--sh)}
+.im{flex:0 0 88px;height:88px;border-radius:18px;display:grid;place-items:center;background:radial-gradient(circle at 30% 20%,var(--g1),var(--g2))}.im svg{width:72px;height:72px;filter:drop-shadow(0 6px 6px rgba(0,0,0,.35))}
+.it .in{flex:1;min-width:0}.it b{display:block;font-size:16px}.pr{color:var(--ac2);font-weight:700;margin-top:4px}
+.dot{display:inline-block;width:10px;height:10px;border:1.5px solid var(--ok);border-radius:2px;margin-right:6px;background:radial-gradient(var(--ok) 38%,transparent 42%)}
+.q{display:flex;align-items:center;gap:10px;background:var(--sf2);border-radius:14px;padding:3px}.q b{min-width:20px;text-align:center}.q button{min-height:36px;width:36px;padding:0}
+.bar{position:fixed;left:0;right:0;bottom:0;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));background:linear-gradient(transparent,var(--bg) 40%)}.bar>div{max-width:520px;margin:0 auto}
+.bub{display:inline-grid;place-items:center;min-width:24px;height:24px;border-radius:12px;background:#1a1306;color:var(--ac2);margin-right:8px;font-size:13px}
+.steps{display:flex;gap:5px;margin:14px 0}.steps i{flex:1;height:6px;border-radius:3px;background:var(--sf2)}.steps i.on{background:linear-gradient(90deg,var(--ac),var(--ac2))}
+.pulse{animation:p 1.6s infinite}@keyframes p{50%{opacity:.5}}
+.hero{text-align:center;padding:26px 0 6px}.hero h1{margin:10px 0}
+.qr{display:inline-block;text-align:center;margin:8px;padding:12px;background:#fff;color:#111;border-radius:16px;font-size:12px;font-weight:600;box-shadow:var(--sh)}.qr canvas,.qr img{display:block;margin:0 auto 6px}
+.board{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.col{background:var(--sf2);border-radius:18px;padding:8px;min-height:120px}.col .card{margin:8px 0;padding:12px}
+.tag{display:inline-block;padding:3px 10px;border-radius:99px;background:var(--sf2);font-size:12px;border:1px solid var(--bd)}
+.kp{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.kp .card{text-align:center;margin:0}.kp b{font-size:22px;font-family:"Playfair Display",serif}
+.late{border-color:var(--er)}.tabs{display:flex;gap:8px;margin:12px 0;overflow-x:auto}
+.sm{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+</style></head><body><div class="w" id="app"></div>
+<script>
+const G={Popcorn:["#ffd36b","#d6781b"],Beverages:["#7ec8ff","#2a5fc4"],Snacks:["#ffb36b","#c4481b"],Combos:["#ff9aa8","#b0213f"],Dessert:["#ffc3e0","#b6458a"]};
+const S=b=>`<svg viewBox="0 0 80 80">${b}</svg>`;
+const bucket=(c,x=0,k=1)=>`<g transform="translate(${x} 0) scale(${k})"><g fill="${c}"><circle cx="26" cy="27" r="11"/><circle cx="41" cy="19" r="12"/><circle cx="55" cy="27" r="10"/><circle cx="40" cy="30" r="11"/></g><path d="M18 34h44l-6 42H24z" fill="#e63946"/><path d="M30 34l2 42M40 34v42M50 34l-2 42" stroke="#fff" stroke-width="5" opacity=".92"/></g>`;
+const cup=(c,x=0,k=1)=>`<g transform="translate(${x} 0) scale(${k})"><path d="M42 22l7-16" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M22 30h36l-5 46H27z" fill="${c}"/><rect x="19" y="23" width="42" height="9" rx="4" fill="#fff"/><rect x="29" y="44" width="22" height="16" rx="4" fill="#fff" opacity=".3"/></g>`;
+const ART={
+pc:c=>S(bucket(c)),cup:c=>S(cup(c)),
+burger:()=>S(`<path d="M12 36a28 22 0 0156 0z" fill="#e8a33d"/><rect x="10" y="38" width="60" height="7" rx="3.5" fill="#5bbf4b"/><rect x="12" y="45" width="56" height="9" rx="4.5" fill="#5a2d17"/><rect x="12" y="54" width="56" height="5" rx="2.5" fill="#ffc83d"/><path d="M12 60h56a28 12 0 01-56 0z" fill="#e8a33d"/>`),
+samosa:()=>S(`<path d="M40 12L70 66H10z" fill="#d98a2b"/><path d="M40 22L60 60H20z" fill="#f0b45a"/><path d="M40 12L70 66H10z" fill="none" stroke="#a85f14" stroke-width="3" stroke-linejoin="round"/>`),
+fries:()=>S(`<g fill="#ffd25a">${[16,24,32,40,48,56].map((x,i)=>`<rect x="${x}" y="${10+i%3*4}" width="7" height="40" rx="2" transform="rotate(${(i-2.5)*5} ${x+3} 50)"/>`).join("")}</g><path d="M14 44h52l-5 32H19z" fill="#e63946"/><rect x="14" y="44" width="52" height="7" fill="#c42a38"/>`),
+nachos:()=>S(`<ellipse cx="40" cy="62" rx="34" ry="10" fill="#6b4a2b"/><path d="M14 56l14-28 14 28zM38 56l14-34 14 34zM24 58l12-22 12 22z" fill="#f2b33d" stroke="#c98a1b" stroke-width="2" stroke-linejoin="round"/><path d="M26 50h18M44 50h16" stroke="#ff8a1f" stroke-width="5" stroke-linecap="round"/>`),
+combo:()=>S(bucket("#fff1c2",-6,.82)+cup("#7a1f1f",18,.62)),
+ice:()=>S(`<circle cx="30" cy="36" r="13" fill="#ff9ec7"/><circle cx="50" cy="36" r="13" fill="#fff1c2"/><circle cx="40" cy="26" r="13" fill="#8b5a3c"/><path d="M16 46h48l-8 30H24z" fill="#f1e3c4"/><path d="M24 76l-8-30M32 76l-4-30M40 76V46M48 76l4-30M56 76l8-30" stroke="#d9c392" stroke-width="2"/>`)};
+const MENU=[["Popcorn","Salted Popcorn",150,ART.pc("#fff3cf")],["Popcorn","Caramel Popcorn",180,ART.pc("#e0a038")],["Popcorn","Cheese Popcorn",190,ART.pc("#ffb347")],["Beverages","Coke",90,ART.cup("#7a1f1f")],["Beverages","Pepsi",90,ART.cup("#1f4fb0")],["Beverages","Cold Coffee",120,ART.cup("#8b5a3c")],["Beverages","Water Bottle",40,ART.cup("#7ec8ff")],["Snacks","Veg Burger",140,ART.burger()],["Snacks","Samosa (2 pcs)",60,ART.samosa()],["Snacks","French Fries",110,ART.fries()],["Snacks","Nachos with Cheese",160,ART.nachos()],["Combos","Large Popcorn + 2 Cokes",380,ART.combo()],["Dessert","Ice Cream Cup",80,ART.ice()]].map((m,i)=>({id:"m"+i,cat:m[0],name:m[1],price:m[2],art:m[3]}));
+const FLOW=["RECEIVED","PREPARING","READY","OUT_FOR_DELIVERY","DELIVERED"];
+const LBL={RECEIVED:"Order received",PREPARING:"Being prepared",READY:"Ready",OUT_FOR_DELIVERY:"On the way to your seat",DELIVERED:"Delivered",CANCELLED:"Cancelled"};
+const DEFAULT_BASE=location.origin+"/";
+const inr=n=>"₹"+Math.round(n).toLocaleString("en-IN");const $=s=>document.querySelector(s);
+const LS={g:(k,d)=>{try{return JSON.parse(localStorage.getItem(k))||d}catch(e){return d}},s:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+let orders=[],sold=[],cart={},seat=LS.g("ss_seat",null),view="menu",pay=null,tab="board",myId=LS.g("ss_my",null),loaded=false,known=new Set(),dbm=null,ownerOK=false,cat="All",msg="",base=LS.g("ss_base",DEFAULT_BASE);
+const isOwner=()=>location.hash==="#owner";
+let token=LS.g("ss_tok",null),live=false,es=null;
+async function api(p,o={}){const r=await fetch("/api"+p,{method:o.method||"GET",headers:{"Content-Type":"application/json",...(token?{Authorization:"Bearer "+token}:{})},body:o.body?JSON.stringify(o.body):undefined});const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||"Request failed");return j}
+function upsert(o){const i=orders.findIndex(x=>x.id===o.id),nw=i<0;if(nw)orders.push(o);else orders[i]=o;if(nw&&o.status==="RECEIVED"&&ownerOK)beep();render()}
+function connect(){if(es)es.close();const q=ownerOK?"token="+encodeURIComponent(token):myId?"order="+myId:"";es=new EventSource("/api/events?"+q);es.onopen=()=>{live=true;render()};es.onerror=()=>{live=false};es.onmessage=e=>{const m=JSON.parse(e.data);if(m.type==="order")upsert(m.order);if(m.type==="sold"){sold=m.ids;render()}}}
+async function login(){try{const r=await api("/login",{method:"POST",body:{pin:$("#pin").value}});token=r.token;LS.s("ss_tok",token);ownerOK=true;orders=await api("/orders");connect()}catch(e){alert("Wrong PIN")}render()}
+async function initStore(){try{sold=(await api("/sold")).ids}catch(e){}
+ if(token){try{orders=await api("/orders");ownerOK=true}catch(e){token=null;LS.s("ss_tok",null)}}
+ if(!ownerOK&&myId){try{orders=[await api("/orders/"+myId)]}catch(e){myId=null}}
+ connect();render()}
+async function setSold(id){try{await api("/sold",{method:"POST",body:{id}})}catch(e){}}
+function beep(){try{const c=new AudioContext(),o=c.createOscillator();o.frequency.value=880;o.connect(c.destination);o.start();setTimeout(()=>o.stop(),250)}catch(e){}}
+const seatLabel=()=>`Screen ${seat.scr} · Row ${seat.row} · Seat ${seat.no}`;
+const lines=()=>Object.entries(cart).filter(([,q])=>q>0).map(([id,q])=>({...MENU.find(m=>m.id===id),q}));
+const sub=()=>lines().reduce((a,l)=>a+l.price*l.q,0),tot=()=>sub()*1.05;
+function route(){const h=location.hash,m=h.match(/^#seat-(\d+)-([A-Za-z]+)-(\d+)$/);
+ if(m){seat={scr:m[1],row:m[2].toUpperCase(),no:m[3]};LS.s("ss_seat",seat);if(view==="landing"||view==="owner")view="menu"}
+ if(h==="#owner")view="owner";else if(view==="owner")view=seat?"menu":"landing";
+ if(!seat&&view!=="owner")view="landing";render()}
+addEventListener("hashchange",route);
+const add=(id,d)=>{cart[id]=Math.max(0,Math.min(10,(cart[id]||0)+d));render()};
+const tk=()=>`<div class="tk"><div><small>YOUR SEAT</small><b>Row ${seat.row} · Seat ${seat.no}</b></div><div style="text-align:right"><small>SCREEN</small><b>${seat.scr}</b></div></div>`;
+function vLanding(){return `<div class="hero"><div class="brand">SeatServe</div><h1>Snacks, delivered<br>to your seat</h1><p class="mu">Scan the QR on the seat in front of you. No app, no queue, no missed scenes.</p></div>
+<div class="card" style="text-align:center"><div class="mu" style="margin-bottom:6px">DEMO · sample seat stickers (scan with a phone, or tap)</div>
+${[["2","F","12"],["2","F","13"],["3","A","5"]].map(s=>`<a href="#seat-${s[0]}-${s[1]}-${s[2]}" style="text-decoration:none"><div class="qr"><div data-qr="${s.join("-")}"></div>Screen ${s[0]} · ${s[1]}${s[2]}</div></a>`).join("")}</div>
+<p class="mu" style="text-align:center"><a href="#owner" style="color:var(--ac2)">Stall owner? Open dashboard</a></p>`}
+function vMenu(){const cats=["All",...Object.keys(G)],items=MENU.filter(m=>cat==="All"||m.cat===cat),n=lines().reduce((a,l)=>a+l.q,0);
+return `<div class="brand">SeatServe</div><h1 style="margin-top:4px">What would you like?</h1>${tk()}
+<div class="chips">${cats.map(c=>`<button class="chip s ${c===cat?"":"g"}" onclick="cat='${c}';render()">${c}</button>`).join("")}</div>
+${items.map(m=>{const so=sold.includes(m.id),q=cart[m.id]||0;return `<div class="it"><div class="im" style="--g1:${G[m.cat][0]};--g2:${G[m.cat][1]}">${m.art}</div><div class="in"><b>${m.name}</b><div class="mu"><span class="dot"></span>Veg</div><div class="row"><span class="pr">${inr(m.price)}</span>${so?`<span class="tag">Sold out</span>`:q?`<div class="q"><button class="g" onclick="add('${m.id}',-1)">−</button><b>${q}</b><button onclick="add('${m.id}',1)">+</button></div>`:`<button class="s" onclick="add('${m.id}',1)">Add</button>`}</div></div></div>`}).join("")}
+${myId&&orders.find(o=>o.id===myId&&o.status!=="DELIVERED")?`<div class="card row"><span>Your order is in progress</span><button class="s" onclick="view='track';render()">Track</button></div>`:""}
+${n?`<div class="bar"><div><button class="full" onclick="view='cart';render()"><span class="bub">${n}</span>View cart · ${inr(tot())}</button></div></div>`:""}`}
+function vCart(){const l=lines();return `<div class="row"><h1>Your cart</h1><button class="g s" onclick="view='menu';render()">Back</button></div>${tk()}
+${l.map(x=>`<div class="it"><div class="im" style="flex-basis:60px;height:60px;--g1:${G[x.cat][0]};--g2:${G[x.cat][1]}">${x.art}</div><div class="in"><b>${x.name}</b><div class="row"><span class="pr">${inr(x.price*x.q)}</span><div class="q"><button class="g" onclick="add('${x.id}',-1)">−</button><b>${x.q}</b><button onclick="add('${x.id}',1)">+</button></div></div></div></div>`).join("")||`<p class="mu">Your cart is empty.</p>`}
+<div class="card"><div class="row"><span class="mu">Subtotal</span><span>${inr(sub())}</span></div><div class="row"><span class="mu">GST 5%</span><span>${inr(sub()*.05)}</span></div><div class="row" style="margin-top:6px"><b>Total</b><b class="serif" style="font-size:20px">${inr(tot())}</b></div></div>
+<input id="nm" placeholder="Your name (optional)"><input id="nt" placeholder="Notes, e.g. less salt">
+<div class="bar"><div><button class="full" ${l.length?"":"disabled"} onclick="toPay()">Pay ${inr(tot())} with UPI</button></div></div>`}
+function toPay(){pay={name:($("#nm")||{}).value||"Guest",note:($("#nt")||{}).value||"",amt:tot()};msg="";view="pay";render()}
+function vPay(){return `<div class="brand">Secure checkout</div><h1>UPI payment</h1>${tk()}
+<div class="card"><div class="row"><span class="mu">SeatServe Demo Stall</span><span class="tag">DEMO</span></div><h1 style="margin:8px 0 12px">${inr(pay.amt)}</h1>
+<input id="upi" placeholder="Enter UPI ID" value="success@demo" autocapitalize="off"><p class="mu">Try: success@demo · fail@demo · pending@demo</p>
+${msg?`<p style="color:var(--er)">${msg}</p>`:""}<button class="full" onclick="doPay()">Pay now</button></div><button class="g full" onclick="view='cart';render()">Cancel</button>`}
+async function doPay(){const u=($("#upi").value||"").trim().toLowerCase();if(!/^[\w.-]+@[\w-]+$/.test(u)){msg="Enter a valid UPI ID.";return render()}
+ if(u.startsWith("fail")){msg="Payment failed. Try again or use another UPI ID.";return render()}
+ $("#app").innerHTML=`<div class="hero"><div class="brand">SeatServe</div><h1 class="pulse">Waiting for UPI approval…</h1><p class="mu">${u.startsWith("pending")?"Approve the request in your UPI app (about 10 seconds).":"Processing your payment…"}</p></div>`;
+ await new Promise(r=>setTimeout(r,u.startsWith("pending")?10000:1200));
+ try{const o=await api("/pay",{method:"POST",body:{seat,items:lines().map(l=>({id:l.id,q:l.q})),name:pay.name,note:pay.note,upi:u}});myId=o.id;LS.s("ss_my",myId);cart={};orders=[o];connect();view="track"}catch(e){msg=e.message;view="pay"}render()}
+function vTrack(){const o=orders.find(x=>x.id===myId);if(!o)return `<h1>Order</h1><p class="mu">No active order.</p><button onclick="view='menu';render()">Back to menu</button>`;
+const i=FLOW.indexOf(o.status);return `<div class="brand">Order ${o.id}</div><h1 class="${o.status==="DELIVERED"?"":"pulse"}">${LBL[o.status]}</h1><div class="mu" style="margin-top:6px">Delivering to ${o.seat}</div>
+<div class="steps">${FLOW.map((s,k)=>`<i class="${k<=i?"on":""}"></i>`).join("")}</div>
+<div class="card">${o.items.map(x=>`<div class="row"><span>${x.q} × ${x.n}</span><span class="mu">${inr(x.p*x.q)}</span></div>`).join("")}<hr style="border:0;border-top:1px solid var(--bd)"><div class="row"><b>Paid via ${o.paid}</b><b class="serif">${inr(o.total)}</b></div></div>
+${o.status==="DELIVERED"?`<p class="serif" style="font-size:20px">Enjoy the movie! 🍿</p>`:o.status==="CANCELLED"?`<p style="color:var(--er)">Cancelled. Your refund is pending.</p>`:`<button class="g full" onclick="api('/orders/${o.id}',{method:'PATCH',body:{action:'issue'}})">Not received?</button>`}
+<button class="full" style="margin-top:10px" onclick="view='menu';render()">Order more</button>`}
+const nxt=s=>FLOW[FLOW.indexOf(s)+1];
+const adv=id=>api("/orders/"+id,{method:"PATCH",body:{action:"advance"}}).catch(e=>alert(e.message));
+const cancel=id=>api("/orders/"+id,{method:"PATCH",body:{action:"cancel"}}).catch(e=>alert(e.message));
+function vOwner(){if(!ownerOK)return `<div class="brand">SeatServe</div><h1>Owner login</h1><div class="card"><input id="pin" type="password" placeholder="Owner PIN"><button class="full" style="margin-top:8px" onclick="login()">Open dashboard</button></div>`;
+const paid=orders.filter(o=>o.status!=="CANCELLED"),rev=paid.reduce((a,o)=>a+o.total,0);
+let h=`<div class="row"><div><div class="brand">SeatServe</div><h1>Stall dashboard</h1></div><span class="tag">${live?"Live":"Reconnecting…"}</span></div>
+<div class="tabs">${["board","menu","qr"].map(t=>`<button class="s ${t===tab?"":"g"}" onclick="tab='${t}';render()">${{board:"Live orders",menu:"Menu",qr:"Seat QR stickers"}[t]}</button>`).join("")}</div>`;
+if(tab==="board"){h+=`<div class="kp"><div class="card"><b>${paid.length}</b><div class="mu">Orders</div></div><div class="card"><b>${inr(rev)}</b><div class="mu">Revenue</div></div><div class="card"><b>${paid.length?inr(rev/paid.length):"₹0"}</b><div class="mu">Avg order</div></div></div><h2></h2><div class="board">`;
+ [["RECEIVED","New"],["PREPARING","Preparing"],["READY","Ready (by row)"],["OUT_FOR_DELIVERY","Out for delivery"]].forEach(([s,t])=>{let l=orders.filter(o=>o.status===s);if(s==="READY")l=l.sort((a,b)=>(a.screen+a.row).localeCompare(b.screen+b.row));
+ h+=`<div class="col"><div class="mu"><b>${t}</b> (${l.length})</div>${l.map(o=>`<div class="card ${(Date.now()-o.t>6e5||o.issue)?"late":""}"><div class="row"><b>${o.id}</b><span class="tag">${Math.max(0,Math.round((Date.now()-o.t)/60000))} min</span></div><div class="serif" style="font-size:18px;margin:4px 0">${o.seat}</div><div class="mu">${o.items.map(x=>x.q+"× "+x.n).join(", ")}</div>${o.note?`<div class="mu">Note: ${o.note}</div>`:""}${o.issue?`<div style="color:var(--er)">Customer: not received</div>`:""}<div class="row" style="margin-top:10px"><button class="s" onclick="adv('${o.id}')">${{RECEIVED:"Accept",PREPARING:"Mark ready",READY:"Out for delivery",OUT_FOR_DELIVERY:"Delivered"}[s]}</button>${s==="RECEIVED"||s==="PREPARING"?`<button class="s d" onclick="cancel('${o.id}')">Cancel</button>`:""}</div></div>`).join("")}</div>`});
+ h+=`</div><p class="mu">Delivered today: ${orders.filter(o=>o.status==="DELIVERED").length}</p>`}
+if(tab==="menu")h+=MENU.map(m=>`<div class="it"><div class="im" style="flex-basis:56px;height:56px;--g1:${G[m.cat][0]};--g2:${G[m.cat][1]}">${m.art}</div><div class="in row"><div><b>${m.name}</b><div class="pr">${inr(m.price)}</div></div><button class="s ${sold.includes(m.id)?"d":"g"}" onclick="setSold('${m.id}')">${sold.includes(m.id)?"Sold out":"Available"}</button></div></div>`).join("");
+if(tab==="qr")h+=`<div class="card"><p class="mu" style="margin-top:0">Each sticker has its own link, so the seat is fixed by the QR. Print and stick one on the back of every seat.</p><div class="mu">App link</div><input id="base" value="${base}"><div class="sm"><input id="qs" value="2" placeholder="Screen"><input id="qr" value="F" placeholder="Row"><input id="qa" value="1" placeholder="From"><input id="qb" value="8" placeholder="To"></div><button class="full" onclick="mkQR()">Generate stickers</button></div><div id="qrs" style="text-align:center"></div>`;
+return h}
+function mkQR(){const b=($("#base").value||base).split("#")[0];base=b;LS.s("ss_base",b);const s=$("#qs").value,r=$("#qr").value.toUpperCase(),a=+$("#qa").value,z=Math.min(+$("#qb").value,a+59),box=$("#qrs");box.innerHTML="";
+ for(let n=a;n<=z;n++){const d=document.createElement("div");d.className="qr";const q=document.createElement("div");d.appendChild(q);d.append("Scan to order snacks");const l=document.createElement("div");l.textContent=`Screen ${s} · ${r}${n}`;d.appendChild(l);box.appendChild(d);qrTo(q,`${b}#seat-${s}-${r}-${n}`,120)}}
+function qrTo(el,t,w){try{new QRCode(el,{text:t,width:w,height:w,correctLevel:QRCode.CorrectLevel.H})}catch(e){el.textContent="QR unavailable"}}
+function drawQR(){document.querySelectorAll("[data-qr]:empty").forEach(e=>qrTo(e,`${base}#seat-${e.dataset.qr}`,120))}
+function render(){const a=document.activeElement;if(a&&a.tagName==="INPUT"&&view!=="menu")return;
+ const v={landing:vLanding,menu:vMenu,cart:vCart,pay:()=>pay?vPay():vMenu(),track:vTrack,owner:vOwner}[view]||vMenu,sc=scrollY;
+ const app=$("#app");app.className=view==="owner"?"w ow":"w";app.innerHTML=v();scrollTo(0,sc);drawQR()}
+setInterval(()=>{if(view==="owner"&&tab==="board"&&ownerOK)render()},30000);
+route();initStore();
+</script></body></html>
